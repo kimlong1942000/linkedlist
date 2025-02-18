@@ -1,9 +1,11 @@
 #include <iostream>  
 
-class Node {  
-public:  
+class Node 
+{  
+private:  
     int data;  
     Node* next;  
+    Node* tail;
 
     Node(int value) {  
         data = value;  
@@ -11,8 +13,9 @@ public:
     }  
 };  
 
-class LinkedList {  
-public:  
+class LinkedList 
+{  
+private:  
     Node* head;  
 
     LinkedList() {  
@@ -22,15 +25,12 @@ public:
     // Thêm nút vào cuối danh sách  
     void append(int data) {  
         Node* newNode = new Node(data);  
-        if (!head) {  
-            head = newNode;  
-            return;  
+        if (tail) {  
+            tail->next = newNode; // Nếu có tail, gán next của nó cho node mới  
+        } else {  
+            head = newNode; // Nếu là phần tử đầu tiên, gán head cho node mới  
         }  
-        Node* lastNode = head;  
-        while (lastNode->next != nullptr) {  
-            lastNode = lastNode->next;  
-        }  
-        lastNode->next = newNode;  
+        tail = newNode; // Cập nhật tail cho node mới  
     }  
 
     // Duyệt danh sách và in ra các phần tử  
