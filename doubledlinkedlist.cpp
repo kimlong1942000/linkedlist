@@ -1,12 +1,12 @@
 #include <iostream>  
 
-class DoubleNode {  
+class Node {  
 public:  
     int data;  
-    DoubleNode* next;  
-    DoubleNode* prev;  
+    Node* next;  
+    Node* prev;  
 
-    DoubleNode(int value) {  
+    Node(int value) {  
         data = value;  
         next = nullptr;  
         prev = nullptr;  
@@ -14,31 +14,28 @@ public:
 };  
 
 class DoublyLinkedList {  
+private:  
+    Node* head;  
+    Node* tail;  
+
 public:  
-    DoubleNode* head;  
+    DoublyLinkedList() : head(nullptr), tail(nullptr) {}  
 
-    DoublyLinkedList() {  
-        head = nullptr;  
-    }  
-
-    // Thêm nút vào cuối danh sách  
-    void append(int data) {  
-        DoubleNode* newNode = new DoubleNode(data);  
-        if (!head) {  
-            head = newNode;  
-            return;  
+    // Thêm phần tử vào cuối danh sách  
+    void append(int value) {  
+        Node* newNode = new Node(value);  
+        if (tail) {  
+            tail->next = newNode; // Gán next của tail hiện tại cho node mới  
+            newNode->prev = tail; // Gán prev của node mới là tail hiện tại  
+        } else {  
+            head = newNode; // Nếu danh sách rỗng, gán head cho node mới  
         }  
-        DoubleNode* lastNode = head;  
-        while (lastNode->next != nullptr) {  
-            lastNode = lastNode->next;  
-        }  
-        lastNode->next = newNode;  
-        newNode->prev = lastNode;  
-    }  
+        tail = newNode; // Cập nhật tail cho node mới  
+    }   
 
     // Duyệt danh sách và in ra các phần tử  
     void display() {  
-        DoubleNode* currentNode = head;  
+        Node* currentNode = head;  
         while (currentNode != nullptr) {  
             std::cout << currentNode->data << " <-> ";  
             currentNode = currentNode->next;  
@@ -48,7 +45,7 @@ public:
 
     // Tìm kiếm một phần tử trong danh sách  
     bool search(int value) {  
-        DoubleNode* currentNode = head;  
+        Node* currentNode = head;  
         while (currentNode != nullptr) {  
             if (currentNode->data == value) {  
                 return true; // Tìm thấy  
