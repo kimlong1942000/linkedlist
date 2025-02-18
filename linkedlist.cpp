@@ -15,13 +15,12 @@ private:
 
 class LinkedList 
 {  
-private:  
+    private:  
     Node* head;  
+    Node* tail;  
 
-    LinkedList() {  
-        head = nullptr;  
-    }  
-
+public:  
+    LinkedList() : head(nullptr), tail(nullptr) {}  
     // Thêm nút vào cuối danh sách  
     void append(int data) {  
         Node* newNode = new Node(data);  
