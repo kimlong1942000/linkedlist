@@ -1,55 +1,127 @@
 #include <iostream>  
-using namespace std;  
+
+class AVLNode {  
+public:  
+    int key;  
+    AVLNode* left;  
+    AVLNode* right;  
+    int height;  
+
+    AVLNode(int value) : key(value), left(nullptr), right(nullptr), height(1) {}  
+};  
 
 class AVLTree {  
 private:  
-    int* arr;        // Mảng chứa các giá trị của cây  
-    int size;       // Kích thước của cây  
-    int capacity;   // Sức chứa tối đa của cây  
+    AVLNode* root;  
+
+    int getHeight(AVLNode* node) {  
+        return node ? node->height : 0;  
+    }  
+
+    int getBalance(AVLNode* node) {  
+        return node ? getHeight(node->left) - getHeight(node->right) : 0;  
+    }  
+
+    AVLNode* rightRotate(AVLNode* y) {  
+        AVLNode* x = y->left;  
+        AVLNode* T2 = x->right;  
+
+        // Thực hiện quay  
+        x->right = y;  
+        y->left = T2;  
+
+        // Cập nhật chiều cao  
+        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;  
+        x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;  
+
+        // Trả về nút mới  
+        return x;  
+    }  
+
+    AVLNode* leftRotate(AVLNode* x) {  
+        AVLNode* y = x->right;  
+        AVLNode* T2 = y->left;  
+
+        // Thực hiện quay  
+        y->left = x;  
+        x->right = T2;  
+
+        // Cập nhật chiều cao  
+        x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;  
+        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;  
+
+        // Trả về nút mới  
+        return y;  
+    }  
+
+    AVLNode* insert(AVLNode* node, int key) {  
+        // Thực hiện chèn như trong BST  
+        if (!node)   
+            return new AVLNode(key);  
+
+        if (key < node->key)  
+            node->left = insert(node->left, key);  
+        else if (key > node->key)  
+            node->right = insert(node->right, key);  
+        else // Không cho phép có giá trị trùng  
+            return node;  
+
+        // Cập nhật chiều cao của nút tổ phụ  
+        node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));  
+
+        // Cân bằng cây  
+        int balance = getBalance(node);  
+
+        // Nếu cây mất cân bằng, 4 trường hợp có thể xảy ra  
+
+        // Left Left Case  
+        if (balance > 1 && key < node->left->key)  
+            return rightRotate(node);  
+
+        // Right Right Case  
+        if (balance < -1 && key > node->right->key)  
+            return leftRotate(node);  
+
+        // Left Right Case  
+        if (balance > 1 && key > node->left->key) {  
+            node->left = leftRotate(node->left);  
+            return rightRotate(node);  
+        }  
+
+        // Right Left Case  
+        if (balance < -1 && key < node->right->key) {  
+            node->right = rightRotate(node->right);  
+            return leftRotate(node);  
+        }  
+
+        // Trả về con trỏ (nút) đã được cân bằng  
+        return node;  
+    }  
+
+    void inOrder(AVLNode* node) {  
+        if (node) {  
+            inOrder(node->left);  
+            std::cout << node->key << " ";  
+            inOrder(node->right);  
+        }  
+    }  
 
 public:  
-    AVLTree(int cap) {  
-        capacity = cap;  
-        size = 0;  
-        arr = new int[capacity]; // Cấp phát mảng động  
-    }  
+    AVLTree() : root(nullptr) {}  
 
-    ~AVLTree() {  
-        delete[] arr; // Giải phóng ô nhớ  
-    }  
-
-    // Hàm để chèn một giá trị vào cây  
     void insert(int key) {  
-        if (size >= capacity) {  
-            cout << "Cây đã đầy!" << endl;  
-            return;  
-        }  
-        arr[size++] = key; // Chèn vào cuối mảng  
-
-        // Cân bằng lại cây sau khi chèn  
-        balance();  
+        root = insert(root, key);  
     }  
 
-    // In ra cây theo thứ tự Preorder  
-    void preOrder() const {  
-        for (int i = 0; i < size; ++i) {  
-            cout << arr[i] << " ";  
-        }  
-        cout << endl;  
-    }  
-
-private:  
-    // Hàm để cân bằng cây sau khi chèn  
-    void balance() {  
-        // Sắp xếp mảng để đảm bảo cây cân bằng (giả định không dùng cấu trúc cây thật sự)  
-        sort(arr, arr + size);  
+    void inOrder() {  
+        inOrder(root);  
     }  
 };  
 
 int main() {  
-    AVLTree tree(10); // Tạo cây AVL với sức chứa 10  
+    AVLTree tree;  
 
-    // Thêm các nút vào cây  
+    // Chèn các giá trị vào cây  
     tree.insert(10);  
     tree.insert(20);  
     tree.insert(30);  
@@ -57,8 +129,10 @@ int main() {
     tree.insert(50);  
     tree.insert(25);  
 
-    // In ra cây theo thứ tự Preorder  
-    tree.preOrder();  
+    // In ra các giá trị theo thứ tự tăng dần  
+    std::cout << "AVL Tree: ";  
+    tree.inOrder(); // Xuất ra: 10 20 25 30 40 50  
+    std::cout << std::endl;  
 
     return 0;  
 }
